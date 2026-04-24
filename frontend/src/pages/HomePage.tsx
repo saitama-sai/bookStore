@@ -7,8 +7,8 @@ import type { Book, Category } from '../types';
 
 const HERO_IMAGES = [
   { url: 'https://images.pexels.com/photos/1290141/pexels-photo-1290141.jpeg?auto=compress&cs=tinysrgb&w=1260&h=400&fit=crop', title: 'Yeni Çıkanlar', sub: 'En taze kitapları keşfedin' },
-  { url: 'https://images.pexels.com/photos/2055782/pexels-photo-2055782.jpeg?auto=compress&cs=tinysrgb&w=1260&h=400&fit=crop', title: 'Klasik Eserler', sub: 'Dünya edebiyatının şaheserleri' },
-  { url: 'https://images.pexels.com/photos/3782235/pexels-photo-3782235.jpeg?auto=compress&cs=tinysrgb&w=1260&h=400&fit=crop', title: 'Bilim Kurgu', sub: 'Geleceğe yolculuk edin' },
+  { url: 'https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=1260&h=400&fit=crop', title: 'Klasik Eserler', sub: 'Dünya edebiyatının şaheserleri' },
+  { url: 'https://images.pexels.com/photos/3747490/pexels-photo-3747490.jpeg?auto=compress&cs=tinysrgb&w=1260&h=400&fit=crop', title: 'Bilim Kurgu', sub: 'Geleceğe yolculuk edin' },
 ];
 
 export default function HomePage() {
