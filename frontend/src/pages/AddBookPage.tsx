@@ -225,7 +225,7 @@ export default function AddBookPage() {
               className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none"
               style={{ borderColor: '#a0522d', backgroundColor: '#fffef9' }}>
               <option value="">Kategori Seçin</option>
-              {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              {Array.isArray(categories) && categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
 
@@ -235,7 +235,7 @@ export default function AddBookPage() {
               className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none"
               style={{ borderColor: '#a0522d', backgroundColor: '#fffef9' }} />
             <p className="text-xs mt-1" style={{ color: '#a0866a' }}>
-              Mevcut yazarlar: {authors.map((a) => `${a.id}: ${a.name}`).join(', ')}
+              Mevcut yazarlar: {Array.isArray(authors) && authors.map((a) => `${a.id}: ${a.name}`).join(', ')}
             </p>
           </div>
 

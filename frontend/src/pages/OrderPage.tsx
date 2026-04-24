@@ -26,7 +26,7 @@ export default function OrderPage() {
     try {
       const order = await createOrder({
         shippingAddress: data.shippingAddress,
-        items: items.map((i) => ({ bookId: i.book.id, quantity: i.quantity })),
+        items: Array.isArray(items) ? items.map((i) => ({ bookId: i.book.id, quantity: i.quantity })) : [],
       });
       clearCart();
       navigate(`/siparislerim/${order.id}`);
@@ -83,7 +83,7 @@ export default function OrderPage() {
         <div>
           <h2 className="text-xl font-bold mb-4" style={{ color: '#3e2723' }}>Sepet Özeti</h2>
           <div className="rounded-xl p-4 space-y-3" style={{ backgroundColor: '#fff8dc', border: '1px solid #f5e6d3' }}>
-            {items.map(({ book, quantity }) => (
+            {Array.isArray(items) && items.map(({ book, quantity }) => (
               <div key={book.id} className="flex justify-between text-sm" style={{ color: '#5d4037' }}>
                 <span className="line-clamp-1 flex-1 mr-2">{book.title} x{quantity}</span>
                 <span className="font-medium">₺{(Number(book.price) * quantity).toFixed(2)}</span>

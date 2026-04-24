@@ -88,7 +88,7 @@ export default function BookDetailPage() {
                 </span>
                 {book.authors && book.authors.length > 0 && (
                   <span className="text-white/70 text-sm text-center">
-                    {book.authors.map((a) => a.name).join(', ')}
+                    {Array.isArray(book.authors) && book.authors.map((a) => a.name).join(', ')}
                   </span>
                 )}
               </div>
@@ -108,7 +108,7 @@ export default function BookDetailPage() {
           </h1>
           {book.authors && book.authors.length > 0 && (
             <p className="text-lg mb-4" style={{ color: '#795548' }}>
-              {book.authors.map((a) => a.name).join(', ')}
+              {Array.isArray(book.authors) && book.authors.map((a) => a.name).join(', ')}
             </p>
           )}
 

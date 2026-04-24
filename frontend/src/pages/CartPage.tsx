@@ -44,7 +44,7 @@ export default function CartPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
-          {items.map(({ book, quantity }) => {
+          {Array.isArray(items) && items.map(({ book, quantity }) => {
             const cover = book.coverImage
               ? `${API_URL}${book.coverImage}`
               : BOOK_COVERS[book.id % BOOK_COVERS.length];
@@ -63,7 +63,7 @@ export default function CartPage() {
                   </Link>
                   {book.authors && book.authors.length > 0 && (
                     <p className="text-xs mt-1" style={{ color: '#795548' }}>
-                      {book.authors.map((a) => a.name).join(', ')}
+                      {Array.isArray(book.authors) && book.authors.map((a) => a.name).join(', ')}
                     </p>
                   )}
                   <p className="text-sm font-bold mt-2" style={{ color: '#8b4513' }}>
@@ -106,7 +106,7 @@ export default function CartPage() {
         <div>
           <div className="rounded-xl p-6 sticky top-24" style={{ backgroundColor: '#fff8dc', border: '1px solid #f5e6d3' }}>
             <h2 className="text-xl font-bold mb-4" style={{ color: '#3e2723' }}>Sipariş Özeti</h2>
-            {items.map(({ book, quantity }) => (
+            {Array.isArray(items) && items.map(({ book, quantity }) => (
               <div key={book.id} className="flex justify-between text-sm mb-2" style={{ color: '#795548' }}>
                 <span className="line-clamp-1 flex-1 mr-2">{book.title}</span>
                 <span>₺{(Number(book.price) * quantity).toFixed(2)}</span>
