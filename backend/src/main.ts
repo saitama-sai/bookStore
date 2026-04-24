@@ -28,12 +28,17 @@ async function bootstrap() {
 
   app.useStaticAssets(join(__dirname, '..', 'public'));
 
-  // Handle SPA routing - redirect all non-api routes to index.html
+  // Handle SPA routing - redirect only navigation requests to index.html
   app.use((req, res, next) => {
-    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+    // If it's an API request, an upload request, or a request for a file with an extension (.js, .css, .png, etc.)
+    // let it pass to the static assets handler or the API
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads') || req.path.includes('.')) {
       return next();
     }
-    res.sendFile(join(__dirname, '..', 'public', 'index.html'));
+    
+    // For all other routes (navigation), serve index.html
+    const indexPath = join(__dirname, '..', 'public', 'index.html');
+    res.sendFile(indexPath);
   });
 
   const port = process.env.PORT || 3000;
