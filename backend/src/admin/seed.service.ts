@@ -275,19 +275,30 @@ export class SeedService {
   }
 
   async seedInitialData() {
-    const adminExists = await this.userRepo.findOne({ where: { email: 'admin@kitabevi.com' } });
-    if (adminExists) return;
-
+    const adminEmail = 'admin@kitabevi.com';
     const adminPassword = await bcrypt.hash('Admin123!', 10);
-    await this.userRepo.save(
-      this.userRepo.create({
-        email: 'admin@kitabevi.com',
-        password: adminPassword,
-        firstName: 'Admin',
-        lastName: 'Kullanıcı',
-        role: UserRole.ADMIN,
-      }),
-    );
+    
+    const admin = await this.userRepo.findOne({ where: { email: adminEmail } });
+    
+    if (admin) {
+      // Admin varsa rolünü ve şifresini güncelle (garantiye al)
+      admin.role = UserRole.ADMIN;
+      admin.password = adminPassword;
+      await this.userRepo.save(admin);
+      console.log('Admin user updated and verified.');
+    } else {
+      // Admin yoksa oluştur
+      await this.userRepo.save(
+        this.userRepo.create({
+          email: adminEmail,
+          password: adminPassword,
+          firstName: 'Admin',
+          lastName: 'Kullanıcı',
+          role: UserRole.ADMIN,
+        }),
+      );
+      console.log('Admin user created.');
+    }
 
     const categories = await this.seedCategories();
 
