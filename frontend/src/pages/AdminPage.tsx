@@ -101,7 +101,7 @@ export default function AdminPage() {
 
       {/* Tabs */}
       <div className="flex gap-2 mb-6 border-b" style={{ borderColor: '#e0cdb0' }}>
-        {tabs.map((t) => (
+        {Array.isArray(tabs) && tabs.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
@@ -144,7 +144,7 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {books?.map((book) => (
+                    {Array.isArray(books) && books.map((book) => (
                       <tr key={book.id} className="border-t hover:bg-orange-50 transition-colors" style={{ borderColor: '#f5e6d3' }}>
                         <td className="p-3">
                           <p className="font-medium" style={{ color: '#3e2723' }}>{book.title}</p>
@@ -194,7 +194,7 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {orders?.map((order) => (
+                    {Array.isArray(orders) && orders.map((order) => (
                       <tr key={order.id} className="border-t hover:bg-orange-50 transition-colors" style={{ borderColor: '#f5e6d3' }}>
                         <td className="p-3 font-medium" style={{ color: '#3e2723' }}>#{order.id}</td>
                         <td className="p-3 text-xs" style={{ color: '#5d4037' }}>
@@ -241,7 +241,7 @@ export default function AdminPage() {
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {categories?.map((cat) => (
+                {Array.isArray(categories) && categories.map((cat) => (
                   <div key={cat.id} className="p-4 rounded-xl" style={{ backgroundColor: '#fff8dc', border: '1px solid #f5e6d3' }}>
                     <p className="font-bold" style={{ color: '#3e2723' }}>{cat.name}</p>
                     <p className="text-xs mt-1" style={{ color: '#795548' }}>{cat.slug}</p>
@@ -265,7 +265,7 @@ export default function AdminPage() {
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {authors?.map((author) => (
+                {Array.isArray(authors) && authors.map((author) => (
                   <div key={author.id} className="p-4 rounded-xl" style={{ backgroundColor: '#fff8dc', border: '1px solid #f5e6d3' }}>
                     <p className="font-bold" style={{ color: '#3e2723' }}>{author.name}</p>
                     {author.country && <p className="text-xs mt-1" style={{ color: '#795548' }}>{author.country}</p>}

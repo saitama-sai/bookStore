@@ -85,7 +85,7 @@ export default function BooksPage() {
                 style={{ borderColor: '#a0522d', backgroundColor: '#fffef9' }}
               >
                 <option value="">Tümü</option>
-                {categories?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                {Array.isArray(categories) && categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
 
@@ -99,7 +99,7 @@ export default function BooksPage() {
                 style={{ borderColor: '#a0522d', backgroundColor: '#fffef9' }}
               >
                 <option value="">Tümü</option>
-                {authors?.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+                {Array.isArray(authors) && authors.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
               </select>
             </div>
 
@@ -181,7 +181,7 @@ export default function BooksPage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-              {books?.map((book) => <BookCard key={book.id} book={book} />)}
+              {Array.isArray(books) && books.map((book) => <BookCard key={book.id} book={book} />)}
             </div>
           )}
 

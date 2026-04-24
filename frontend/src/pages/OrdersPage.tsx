@@ -21,7 +21,10 @@ export default function OrdersPage() {
     if (id) {
       getOrder(+id).then(setOrder).finally(() => setLoading(false));
     } else {
-      getOrders().then(setOrders).finally(() => setLoading(false));
+      getOrders().then(res => {
+        if (Array.isArray(res)) setOrders(res);
+        else if (res && (res as any).items) setOrders((res as any).items);
+      }).finally(() => setLoading(false));
     }
   }, [id]);
 
@@ -53,7 +56,7 @@ export default function OrdersPage() {
           <div className="p-6">
             <h2 className="font-bold mb-3" style={{ color: '#3e2723' }}>Sipariş Detayları</h2>
             <div className="space-y-3">
-              {order.orderItems?.map((item) => (
+              {Array.isArray(order.orderItems) && order.orderItems.map((item) => (
                 <div key={item.id} className="flex justify-between items-center py-2 border-b" style={{ borderColor: '#f5e6d3' }}>
                   <div>
                     <p className="font-medium text-sm" style={{ color: '#3e2723' }}>{item.book?.title || 'Kitap'}</p>
@@ -94,7 +97,7 @@ export default function OrdersPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {orders.map((o) => {
+          {Array.isArray(orders) && orders.map((o) => {
             const status = STATUS_LABELS[o.status];
             return (
               <Link
