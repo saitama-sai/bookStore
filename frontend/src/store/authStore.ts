@@ -12,20 +12,27 @@ interface AuthState {
 const storedUser = localStorage.getItem('user');
 const storedToken = localStorage.getItem('token');
 
-let initialUser = null;
-try {
-  initialUser = storedUser && storedUser !== 'undefined' ? JSON.parse(storedUser) : null;
-} catch (e) {
-  console.error("Failed to parse stored user", e);
-  localStorage.removeItem('user');
-}
+const getInitialUser = () => {
+  try {
+    if (!storedUser || storedUser === 'undefined' || storedUser === 'null') return null;
+    return JSON.parse(storedUser);
+  } catch (e) {
+    localStorage.removeItem('user');
+    return null;
+  }
+};
+
+const getInitialToken = () => {
+  if (!storedToken || storedToken === 'undefined' || storedToken === 'null') return null;
+  return storedToken;
+};
 
 export const useAuthStore = create<AuthState>((set, get) => ({
-  user: initialUser,
-  token: storedToken,
+  user: getInitialUser(),
+  token: getInitialToken(),
   setAuth: (user, token) => {
-    localStorage.setItem('user', JSON.stringify(user));
-    localStorage.setItem('token', token);
+    if (user) localStorage.setItem('user', JSON.stringify(user));
+    if (token) localStorage.setItem('token', token);
     set({ user, token });
   },
   logout: () => {
@@ -33,5 +40,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     localStorage.removeItem('token');
     set({ user: null, token: null });
   },
-  isAdmin: () => get().user?.role === 'admin',
+  isAdmin: () => {
+    const user = get().user;
+    return user?.role === 'admin';
+  },
 }));

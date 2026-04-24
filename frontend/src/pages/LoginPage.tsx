@@ -22,7 +22,8 @@ export default function LoginPage() {
     try {
       const res = await login(data);
       setAuth(res.user, res.access_token);
-      navigate('/');
+      // Force a full page reload to ensure state is fresh and correctly loaded
+      window.location.href = '/';
     } catch (err: any) {
       setError(err.response?.data?.message || 'Giriş yapılamadı');
     } finally {
