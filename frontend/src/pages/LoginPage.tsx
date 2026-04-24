@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { login } from '../api/auth';
 import { useAuthStore } from '../store/authStore';
@@ -10,7 +10,6 @@ interface FormData {
 }
 
 export default function LoginPage() {
-  const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

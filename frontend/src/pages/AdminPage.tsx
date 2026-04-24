@@ -62,7 +62,9 @@ export default function AdminPage() {
 
   const handleUpdateOrderStatus = async (id: number, status: string) => {
     await updateOrderStatus(id, status);
-    setOrders(orders.map((o) => o.id === id ? { ...o, status: status as Order['status'] } : o));
+    if (Array.isArray(orders)) {
+      setOrders(orders.map((o) => o.id === id ? { ...o, status: status as Order['status'] } : o));
+    }
   };
 
   const handleAddCategory = async () => {

@@ -33,7 +33,7 @@ export default function OrdersPage() {
   }
 
   if (id && order) {
-    const status = STATUS_LABELS[order.status];
+    const status = STATUS_LABELS[order.status] || { label: order.status, color: '#000', bg: '#eee' };
     return (
       <div className="max-w-3xl mx-auto px-4 py-8">
         <Link to="/siparislerim" className="text-sm mb-6 flex items-center gap-1 hover:underline" style={{ color: '#8b4513' }}>
@@ -98,7 +98,7 @@ export default function OrdersPage() {
       ) : (
         <div className="space-y-4">
           {Array.isArray(orders) && orders.map((o) => {
-            const status = STATUS_LABELS[o.status];
+            const status = STATUS_LABELS[o.status] || { label: o.status, color: '#000', bg: '#eee' };
             return (
               <Link
                 key={o.id}
