@@ -39,9 +39,11 @@ export default function BooksPage() {
       minPrice: minPrice ? +minPrice : undefined,
       maxPrice: maxPrice ? +maxPrice : undefined,
     }).then((data) => {
-      setBooks(data.items);
-      setTotal(data.total);
-      setTotalPages(data.totalPages);
+      if (data && data.items) setBooks(data.items);
+      if (data && typeof data.total === 'number') setTotal(data.total);
+      if (data && typeof data.totalPages === 'number') setTotalPages(data.totalPages);
+    }).catch(err => {
+      console.error("Books data fetch error:", err);
     }).finally(() => setLoading(false));
   }, [searchParams]);
 
@@ -83,7 +85,7 @@ export default function BooksPage() {
                 style={{ borderColor: '#a0522d', backgroundColor: '#fffef9' }}
               >
                 <option value="">Tümü</option>
-                {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                {categories?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
 
@@ -97,7 +99,7 @@ export default function BooksPage() {
                 style={{ borderColor: '#a0522d', backgroundColor: '#fffef9' }}
               >
                 <option value="">Tümü</option>
-                {authors.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+                {authors?.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
               </select>
             </div>
 
@@ -179,7 +181,7 @@ export default function BooksPage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-              {books.map((book) => <BookCard key={book.id} book={book} />)}
+              {books?.map((book) => <BookCard key={book.id} book={book} />)}
             </div>
           )}
 

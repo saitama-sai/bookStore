@@ -24,9 +24,11 @@ export default function HomePage() {
       getBooks({ limit: 8, sortBy: 'createdAt', sortOrder: 'DESC' }),
       getCategories(),
     ]).then(([feat, new_, cats]) => {
-      setFeatured(feat.items);
-      setNewest(new_.items);
-      setCategories(cats.slice(0, 5));
+      if (feat && feat.items) setFeatured(feat.items);
+      if (new_ && new_.items) setNewest(new_.items);
+      if (Array.isArray(cats)) setCategories(cats.slice(0, 5));
+    }).catch(err => {
+      console.error("Home data fetch error:", err);
     }).finally(() => setLoading(false));
   }, []);
 
@@ -77,7 +79,7 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto px-4 py-12">
         <h2 className="text-2xl font-bold mb-6" style={{ color: '#3e2723', fontFamily: 'Georgia, serif' }}>Kategoriler</h2>
         <div className="flex flex-wrap gap-3">
-          {categories.map((cat) => (
+          {categories?.map((cat) => (
             <Link
               key={cat.id}
               to={`/kitaplar?categoryId=${cat.id}`}
@@ -113,7 +115,7 @@ export default function HomePage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {featured.map((book) => <BookCard key={book.id} book={book} />)}
+            {featured?.map((book) => <BookCard key={book.id} book={book} />)}
           </div>
         )}
       </div>
@@ -129,7 +131,7 @@ export default function HomePage() {
           </div>
           {!loading && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {newest.map((book) => <BookCard key={book.id} book={book} />)}
+              {newest?.map((book) => <BookCard key={book.id} book={book} />)}
             </div>
           )}
         </div>

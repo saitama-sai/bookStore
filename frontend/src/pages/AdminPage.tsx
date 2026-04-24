@@ -36,15 +36,19 @@ export default function AdminPage() {
     try {
       if (tab === 'books') {
         const data = await getBooks({ limit: 50 });
-        setBooks(data.items);
+        if (data && data.items) setBooks(data.items);
       } else if (tab === 'orders') {
         const data = await getOrders();
-        setOrders(data as unknown as Order[]);
+        if (Array.isArray(data)) setOrders(data as unknown as Order[]);
       } else if (tab === 'categories') {
-        setCategories(await getCategories());
+        const data = await getCategories();
+        if (Array.isArray(data)) setCategories(data);
       } else if (tab === 'authors') {
-        setAuthors(await getAuthors());
+        const data = await getAuthors();
+        if (Array.isArray(data)) setAuthors(data);
       }
+    } catch (err) {
+      console.error("Admin data fetch error:", err);
     } finally {
       setLoading(false);
     }
@@ -140,7 +144,7 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {books.map((book) => (
+                    {books?.map((book) => (
                       <tr key={book.id} className="border-t hover:bg-orange-50 transition-colors" style={{ borderColor: '#f5e6d3' }}>
                         <td className="p-3">
                           <p className="font-medium" style={{ color: '#3e2723' }}>{book.title}</p>
@@ -190,7 +194,7 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {orders.map((order) => (
+                    {orders?.map((order) => (
                       <tr key={order.id} className="border-t hover:bg-orange-50 transition-colors" style={{ borderColor: '#f5e6d3' }}>
                         <td className="p-3 font-medium" style={{ color: '#3e2723' }}>#{order.id}</td>
                         <td className="p-3 text-xs" style={{ color: '#5d4037' }}>
@@ -237,7 +241,7 @@ export default function AdminPage() {
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {categories.map((cat) => (
+                {categories?.map((cat) => (
                   <div key={cat.id} className="p-4 rounded-xl" style={{ backgroundColor: '#fff8dc', border: '1px solid #f5e6d3' }}>
                     <p className="font-bold" style={{ color: '#3e2723' }}>{cat.name}</p>
                     <p className="text-xs mt-1" style={{ color: '#795548' }}>{cat.slug}</p>
@@ -261,7 +265,7 @@ export default function AdminPage() {
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {authors.map((author) => (
+                {authors?.map((author) => (
                   <div key={author.id} className="p-4 rounded-xl" style={{ backgroundColor: '#fff8dc', border: '1px solid #f5e6d3' }}>
                     <p className="font-bold" style={{ color: '#3e2723' }}>{author.name}</p>
                     {author.country && <p className="text-xs mt-1" style={{ color: '#795548' }}>{author.country}</p>}
