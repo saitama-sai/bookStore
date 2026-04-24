@@ -1,0 +1,10 @@
+{
+  "name": "kitabevi",
+  "private": true,
+  "scripts": {
+    "backend": "cd backend && node dist/main",
+    "frontend": "cd frontend && node_modules/.bin/vite",
+    "build": "cd backend && npm install && node_modules/.bin/nest build && cd ../frontend && npm install && npm run build",
+    "test": "echo \"Backend: http://localhost:3000 | Frontend: http://localhost:5173\""
+  }
+}
