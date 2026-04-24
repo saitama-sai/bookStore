@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useCartStore } from '../store/cartStore';
 import { useAuthStore } from '../store/authStore';
+import { API_URL } from '../api/client';
 
 const BOOK_COVERS = [
   'https://images.pexels.com/photos/1148399/pexels-photo-1148399.jpeg?auto=compress&cs=tinysrgb&w=100&h=140&fit=crop',
@@ -45,7 +46,7 @@ export default function CartPage() {
         <div className="lg:col-span-2 space-y-4">
           {items.map(({ book, quantity }) => {
             const cover = book.coverImage
-              ? `http://localhost:3000${book.coverImage}`
+              ? `${API_URL}${book.coverImage}`
               : BOOK_COVERS[book.id % BOOK_COVERS.length];
             return (
               <div

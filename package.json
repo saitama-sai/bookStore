@@ -2,9 +2,9 @@
   "name": "kitabevi",
   "private": true,
   "scripts": {
-    "backend": "cd backend && node dist/main",
-    "frontend": "cd frontend && node_modules/.bin/vite",
-    "build": "cd backend && npm install && node_modules/.bin/nest build && cd ../frontend && npm install && npm run build",
-    "test": "echo \"Backend: http://localhost:3000 | Frontend: http://localhost:5173\""
+    "backend:build": "cd backend && npm install && npm run build",
+    "frontend:build": "cd frontend && npm install && npm run build",
+    "build": "npm run backend:build && npm run frontend:build",
+    "start": "cd backend && node dist/main"
   }
 }

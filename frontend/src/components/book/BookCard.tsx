@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCartStore } from '../../store/cartStore';
 import type { Book } from '../../types';
+import { API_URL } from '../../api/client';
 
 function getBookCover(book: Book): string {
   if (book.coverImage) {
     if (book.coverImage.startsWith('http')) return book.coverImage;
-    return `http://localhost:3000${book.coverImage}`;
+    return `${API_URL}${book.coverImage}`;
   }
   if (book.isbn) {
     return `https://covers.openlibrary.org/b/isbn/${book.isbn}-M.jpg`;

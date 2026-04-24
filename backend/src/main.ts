@@ -26,17 +26,18 @@ async function bootstrap() {
     prefix: '/uploads',
   });
 
-  const config = new DocumentBuilder()
-    .setTitle('Kitabevi API')
-    .setDescription('Kitabevi Online Satış Sistemi API')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  app.useStaticAssets(join(__dirname, '..', 'public'));
 
-  await app.listen(3000);
-  console.log('Kitabevi API is running on: http://localhost:3000');
-  console.log('Swagger docs: http://localhost:3000/api');
+  // Handle SPA routing - redirect all non-api routes to index.html
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+      return next();
+    }
+    res.sendFile(join(__dirname, '..', 'public', 'index.html'));
+  });
+
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+  console.log(`Kitabevi API is running on port: ${port}`);
 }
 bootstrap();
