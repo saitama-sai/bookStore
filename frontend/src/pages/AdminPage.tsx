@@ -284,64 +284,118 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                {/* Chart Section */}
+                {/* SVG X/Y Chart */}
                 <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: '#fff8dc', border: '1px solid #f5e6d3' }}>
-                  <h3 className="text-xl font-bold mb-6" style={{ color: '#3e2723', fontFamily: 'Georgia, serif' }}>Tüm Zamanların Satış Tablosu</h3>
+                  <h3 className="text-xl font-bold mb-6" style={{ color: '#3e2723', fontFamily: 'Georgia, serif' }}>Kazanç Grafiği (En Çok Satan 10 Kitap)</h3>
                   
                   {analyticsData.length === 0 ? (
-                    <p className="text-center py-12" style={{ color: '#795548' }}>Henüz veri bulunmuyor.</p>
-                  ) : (
-                    <div className="space-y-6">
-                      {analyticsData.map(({ book, unitsSold, earnings }) => {
-                        const earningsPct = (earnings / maxEarnings) * 100;
-                        const unitsPct = (unitsSold / maxUnits) * 100;
-                        
-                        return (
-                          <div key={book.id} className="flex flex-col md:flex-row md:items-center gap-3 p-3 rounded-lg hover:bg-orange-50 transition-colors">
-                            {/* Book Info */}
-                            <div className="w-full md:w-48 flex-shrink-0 flex items-center gap-3">
-                              <span className="text-xl">📖</span>
-                              <div className="min-w-0 flex-1">
-                                <p className="font-bold text-sm truncate" style={{ color: '#3e2723' }}>{book.title}</p>
-                                <p className="text-xs truncate" style={{ color: '#795548' }}>₺{Number(book.price).toFixed(2)}</p>
-                              </div>
-                            </div>
+                    <p className="text-center py-12" style={{ color: '#795548' }}>Grafik için veri bulunmuyor.</p>
+                  ) : (() => {
+                    const topBooks = analyticsData.slice(0, 10);
+                    const svgWidth = 700;
+                    const svgHeight = 350;
+                    const paddingLeft = 70;
+                    const paddingBottom = 60;
+                    const paddingTop = 30;
+                    const paddingRight = 30;
+                    
+                    const chartWidth = svgWidth - paddingLeft - paddingRight;
+                    const chartHeight = svgHeight - paddingTop - paddingBottom;
+                    
+                    const maxTopEarnings = Math.max(...topBooks.map(b => b.earnings), 1);
+                    
+                    return (
+                      <div className="overflow-x-auto pb-4">
+                        <svg width={svgWidth} height={svgHeight} className="mx-auto">
+                          <defs>
+                            <linearGradient id="barGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                              <stop offset="0%" stopColor="#2e7d32" />
+                              <stop offset="100%" stopColor="#81c784" />
+                            </linearGradient>
+                          </defs>
 
-                            {/* Bars */}
-                            <div className="flex-1 flex flex-col gap-1.5 justify-center">
-                              {/* Earnings Bar */}
-                              <div className="flex items-center gap-2">
-                                <div className="flex-1 h-3 rounded-full bg-gray-200 overflow-hidden">
-                                  <div 
-                                    className="h-full rounded-full transition-all duration-1000 ease-out" 
-                                    style={{ 
-                                      width: `${earningsPct}%`, 
-                                      background: 'linear-gradient(to right, #4caf50, #2e7d32)',
-                                    }} 
-                                  />
-                                </div>
-                                <span className="text-xs font-bold w-20 text-right" style={{ color: '#2e7d32' }}>₺{earnings.toFixed(2)}</span>
-                              </div>
+                          {/* Y Axis Guides */}
+                          {[0, 0.25, 0.5, 0.75, 1].map((pct, idx) => {
+                            const val = maxTopEarnings * pct;
+                            const yPos = svgHeight - paddingBottom - (chartHeight * pct);
+                            return (
+                              <g key={idx}>
+                                <line x1={paddingLeft} y1={yPos} x2={svgWidth - paddingRight} y2={yPos} stroke="#e0cdb0" strokeDasharray="4 4" />
+                                <text x={paddingLeft - 10} y={yPos + 4} textAnchor="end" className="text-[10px] font-bold" style={{ fill: '#5d4037' }}>
+                                  ₺{val >= 1000 ? `${(val/1000).toFixed(1)}k` : val.toFixed(0)}
+                                </text>
+                              </g>
+                            );
+                          })}
 
-                              {/* Units Sold Bar */}
-                              <div className="flex items-center gap-2">
-                                <div className="flex-1 h-3 rounded-full bg-gray-200 overflow-hidden">
-                                  <div 
-                                    className="h-full rounded-full transition-all duration-1000 ease-out" 
-                                    style={{ 
-                                      width: `${unitsPct}%`, 
-                                      background: 'linear-gradient(to right, #2196f3, #1565c0)',
-                                    }} 
-                                  />
-                                </div>
-                                <span className="text-xs font-bold w-20 text-right" style={{ color: '#1565c0' }}>{unitsSold} Adet</span>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                          {/* Axes */}
+                          <line x1={paddingLeft} y1={paddingTop} x2={paddingLeft} y2={svgHeight - paddingBottom} stroke="#8b4513" strokeWidth="2" />
+                          <line x1={paddingLeft} y1={svgHeight - paddingBottom} x2={svgWidth - paddingRight} y2={svgHeight - paddingBottom} stroke="#8b4513" strokeWidth="2" />
+
+                          {/* Bars */}
+                          {topBooks.map((item, index) => {
+                            const barWidth = 35;
+                            const colWidth = chartWidth / topBooks.length;
+                            const xPos = paddingLeft + (index * colWidth) + (colWidth - barWidth) / 2;
+                            const barHeight = (item.earnings / maxTopEarnings) * chartHeight;
+                            const yPos = svgHeight - paddingBottom - barHeight;
+
+                            return (
+                              <g key={item.book.id} className="group">
+                                <rect 
+                                  x={xPos} 
+                                  y={yPos} 
+                                  width={barWidth} 
+                                  height={barHeight} 
+                                  fill="url(#barGrad)" 
+                                  rx="4"
+                                  className="transition-all duration-500 hover:opacity-80 cursor-pointer"
+                                />
+                                <text 
+                                  x={xPos + barWidth / 2} 
+                                  y={yPos - 5} 
+                                  textAnchor="middle" 
+                                  className="text-[10px] font-bold" 
+                                  style={{ fill: '#2e7d32' }}
+                                >
+                                  ₺{item.earnings.toFixed(0)}
+                                </text>
+                                <text 
+                                  x={xPos + barWidth / 2} 
+                                  y={svgHeight - paddingBottom + 15} 
+                                  textAnchor="end" 
+                                  className="text-[10px] font-medium" 
+                                  transform={`rotate(-30, ${xPos + barWidth / 2}, ${svgHeight - paddingBottom + 15})`}
+                                  style={{ fill: '#3e2723' }}
+                                >
+                                  {item.book.title.length > 12 ? `${item.book.title.slice(0, 10)}...` : item.book.title}
+                                </text>
+                              </g>
+                            );
+                          })}
+                        </svg>
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* Overall List Details */}
+                <div className="rounded-2xl p-6 shadow-sm mt-6" style={{ backgroundColor: '#fff8dc', border: '1px solid #f5e6d3' }}>
+                  <h3 className="text-xl font-bold mb-4" style={{ color: '#3e2723', fontFamily: 'Georgia, serif' }}>Detaylı Satış Listesi</h3>
+                  <div className="space-y-4">
+                    {analyticsData.map(({ book, unitsSold, earnings }) => (
+                      <div key={book.id} className="flex justify-between items-center p-3 rounded-lg bg-orange-50/50 hover:bg-orange-50 transition-colors">
+                        <div className="flex items-center gap-2">
+                          <span>📖</span>
+                          <span className="font-medium text-sm text-amber-900">{book.title}</span>
+                        </div>
+                        <div className="flex gap-4 text-xs font-bold">
+                          <span style={{ color: '#1565c0' }}>{unitsSold} Adet</span>
+                          <span style={{ color: '#2e7d32' }}>₺{earnings.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             );
