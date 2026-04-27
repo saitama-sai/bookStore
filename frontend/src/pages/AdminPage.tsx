@@ -7,7 +7,7 @@ import { getAuthors, createAuthor } from '../api/authors';
 import { useAuthStore } from '../store/authStore';
 import type { Book, Order, Category, Author } from '../types';
 
-type Tab = 'books' | 'orders' | 'categories' | 'authors';
+type Tab = 'books' | 'orders' | 'categories' | 'authors' | 'analytics';
 
 const STATUS_LABELS: Record<string, string> = {
   pending: 'Beklemede', processing: 'Hazırlanıyor', shipped: 'Kargoda',
@@ -40,6 +40,13 @@ export default function AdminPage() {
       } else if (tab === 'orders') {
         const data = await getOrders();
         if (Array.isArray(data)) setOrders(data as unknown as Order[]);
+      } else if (tab === 'analytics') {
+        const [booksData, ordersData] = await Promise.all([
+          getBooks({ limit: 100 }),
+          getOrders(),
+        ]);
+        if (booksData && booksData.items) setBooks(booksData.items);
+        if (Array.isArray(ordersData)) setOrders(ordersData as unknown as Order[]);
       } else if (tab === 'categories') {
         const data = await getCategories();
         if (Array.isArray(data)) setCategories(data);
@@ -84,6 +91,7 @@ export default function AdminPage() {
   const tabs: { id: Tab; label: string; icon: string }[] = [
     { id: 'books', label: 'Kitaplar', icon: '📚' },
     { id: 'orders', label: 'Siparişler', icon: '📦' },
+    { id: 'analytics', label: 'Grafikler', icon: '📊' },
     { id: 'categories', label: 'Kategoriler', icon: '🏷️' },
     { id: 'authors', label: 'Yazarlar', icon: '✍️' },
   ];
@@ -226,6 +234,118 @@ export default function AdminPage() {
               )}
             </div>
           )}
+
+          {/* Analytics */}
+          {tab === 'analytics' && (() => {
+            const analyticsData = (Array.isArray(books) ? books : []).map((book) => {
+              let unitsSold = 0;
+              let earnings = 0;
+              
+              if (Array.isArray(orders)) {
+                orders.forEach((order) => {
+                  if (order.status !== 'cancelled') {
+                    if (Array.isArray(order.orderItems)) {
+                      order.orderItems.forEach((item) => {
+                        if (Number(item.bookId) === Number(book.id)) {
+                          unitsSold += Number(item.quantity);
+                          earnings += Number(item.quantity) * Number(item.price || book.price);
+                        }
+                      });
+                    }
+                  }
+                });
+              }
+
+              return { book, unitsSold, earnings };
+            }).sort((a, b) => b.earnings - a.earnings);
+
+            const maxEarnings = Math.max(...analyticsData.map(d => d.earnings), 1);
+            const maxUnits = Math.max(...analyticsData.map(d => d.unitsSold), 1);
+            const totalEarnings = analyticsData.reduce((acc, curr) => acc + curr.earnings, 0);
+            const totalUnits = analyticsData.reduce((acc, curr) => acc + curr.unitsSold, 0);
+
+            return (
+              <div className="space-y-6">
+                {/* Overview Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-6 rounded-2xl shadow-sm flex items-center justify-between" style={{ backgroundColor: '#fff8dc', border: '1px solid #f5e6d3' }}>
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider" style={{ color: '#795548' }}>Toplam Satış Kazancı</p>
+                      <h3 className="text-3xl font-bold mt-1" style={{ color: '#2e7d32' }}>₺{totalEarnings.toFixed(2)}</h3>
+                    </div>
+                    <span className="text-4xl">💰</span>
+                  </div>
+                  <div className="p-6 rounded-2xl shadow-sm flex items-center justify-between" style={{ backgroundColor: '#fff8dc', border: '1px solid #f5e6d3' }}>
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider" style={{ color: '#795548' }}>Satılan Toplam Kitap</p>
+                      <h3 className="text-3xl font-bold mt-1" style={{ color: '#1565c0' }}>{totalUnits} Adet</h3>
+                    </div>
+                    <span className="text-4xl">📚</span>
+                  </div>
+                </div>
+
+                {/* Chart Section */}
+                <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: '#fff8dc', border: '1px solid #f5e6d3' }}>
+                  <h3 className="text-xl font-bold mb-6" style={{ color: '#3e2723', fontFamily: 'Georgia, serif' }}>Tüm Zamanların Satış Tablosu</h3>
+                  
+                  {analyticsData.length === 0 ? (
+                    <p className="text-center py-12" style={{ color: '#795548' }}>Henüz veri bulunmuyor.</p>
+                  ) : (
+                    <div className="space-y-6">
+                      {analyticsData.map(({ book, unitsSold, earnings }) => {
+                        const earningsPct = (earnings / maxEarnings) * 100;
+                        const unitsPct = (unitsSold / maxUnits) * 100;
+                        
+                        return (
+                          <div key={book.id} className="flex flex-col md:flex-row md:items-center gap-3 p-3 rounded-lg hover:bg-orange-50 transition-colors">
+                            {/* Book Info */}
+                            <div className="w-full md:w-48 flex-shrink-0 flex items-center gap-3">
+                              <span className="text-xl">📖</span>
+                              <div className="min-w-0 flex-1">
+                                <p className="font-bold text-sm truncate" style={{ color: '#3e2723' }}>{book.title}</p>
+                                <p className="text-xs truncate" style={{ color: '#795548' }}>₺{Number(book.price).toFixed(2)}</p>
+                              </div>
+                            </div>
+
+                            {/* Bars */}
+                            <div className="flex-1 flex flex-col gap-1.5 justify-center">
+                              {/* Earnings Bar */}
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 h-3 rounded-full bg-gray-200 overflow-hidden">
+                                  <div 
+                                    className="h-full rounded-full transition-all duration-1000 ease-out" 
+                                    style={{ 
+                                      width: `${earningsPct}%`, 
+                                      background: 'linear-gradient(to right, #4caf50, #2e7d32)',
+                                    }} 
+                                  />
+                                </div>
+                                <span className="text-xs font-bold w-20 text-right" style={{ color: '#2e7d32' }}>₺{earnings.toFixed(2)}</span>
+                              </div>
+
+                              {/* Units Sold Bar */}
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 h-3 rounded-full bg-gray-200 overflow-hidden">
+                                  <div 
+                                    className="h-full rounded-full transition-all duration-1000 ease-out" 
+                                    style={{ 
+                                      width: `${unitsPct}%`, 
+                                      background: 'linear-gradient(to right, #2196f3, #1565c0)',
+                                    }} 
+                                  />
+                                </div>
+                                <span className="text-xs font-bold w-20 text-right" style={{ color: '#1565c0' }}>{unitsSold} Adet</span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Categories */}
           {tab === 'categories' && (
