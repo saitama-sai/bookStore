@@ -18,6 +18,13 @@ Aşağıdaki adımları sırasıyla uygulayarak projeyi kendi bilgisayarınızda
 ### 📌 Ön Hazırlık
 Bilgisayarınızda [Node.js](https://nodejs.org/) (v18+ sürümü) kurulu olmalıdır.
 
+### 📥 0. Projeyi Bilgisayara İndirme (Clone)
+Eğer projeyi henüz indirmediyseniz, terminal üzerinden bilgisayarınıza çekin ve klasörün içerisine girin:
+```bash
+git clone https://github.com/saitama-sai/bookStore.git
+cd bookStore
+```
+
 ### 📦 1. Gerekli Paketlerin Yüklenmesi
 Ana dizindeyken backend ve frontend kütüphanelerinin tamamını kurmak için:
 ```bash
