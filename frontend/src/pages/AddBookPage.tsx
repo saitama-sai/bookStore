@@ -29,10 +29,25 @@ export default function AddBookPage() {
   const [error, setError] = useState('');
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { register, handleSubmit, formState: { errors } } = useForm<FormFields>({
     defaultValues: { language: 'Türkçe', stock: 0 }
   });
+
+  const processImageFile = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      setError('Lütfen bir görsel dosyası seçin (JPG, PNG, WebP)');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Dosya boyutu en fazla 5MB olabilir');
+      return;
+    }
+    setCoverFile(file);
+    setCoverPreview(URL.createObjectURL(file));
+    setError('');
+  };
 
   useEffect(() => {
     if (!user || !isAdmin()) { navigate('/giris'); return; }
@@ -42,20 +57,50 @@ export default function AddBookPage() {
     });
   }, []);
 
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (items) {
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].type.indexOf('image') !== -1) {
+            const file = items[i].getAsFile();
+            if (file) {
+              processImageFile(file);
+            }
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, []);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (!file.type.startsWith('image/')) {
-        setError('Lütfen bir görsel dosyası seçin (JPG, PNG, WebP)');
-        return;
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        setError('Dosya boyutu en fazla 5MB olabilir');
-        return;
-      }
-      setCoverFile(file);
-      setCoverPreview(URL.createObjectURL(file));
-      setError('');
+      processImageFile(file);
+    }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setIsDragging(true);
+    } else if (e.type === "dragleave") {
+      setIsDragging(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      processImageFile(e.dataTransfer.files[0]);
     }
   };
 
@@ -102,17 +147,24 @@ export default function AddBookPage() {
           
           {/* Cover Image Upload */}
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: '#5d4037' }}>Kapak Görseli</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#5d4037' }}>
+              Kapak Görseli (Tıklayın, Sürükleyin veya Yapıştırın)
+            </label>
             <div className="flex gap-4 items-start">
               {/* Preview */}
               <div
                 className="w-32 h-44 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center cursor-pointer transition-all hover:shadow-lg"
                 style={{ 
-                  backgroundColor: '#f5e6d3', 
-                  border: '2px dashed #a0522d',
+                  backgroundColor: isDragging ? '#fdf6f0' : '#f5e6d3', 
+                  border: isDragging ? '2px dashed #ff8c00' : '2px dashed #a0522d',
                   borderStyle: coverPreview ? 'solid' : 'dashed',
+                  transform: isDragging ? 'scale(1.03)' : 'none',
                 }}
                 onClick={() => fileInputRef.current?.click()}
+                onDragEnter={handleDrag}
+                onDragOver={handleDrag}
+                onDragLeave={handleDrag}
+                onDrop={handleDrop}
               >
                 {coverPreview ? (
                   <img src={coverPreview} alt="Kapak önizleme" className="w-full h-full object-cover" />
@@ -155,7 +207,7 @@ export default function AddBookPage() {
                 )}
                 {!coverFile && (
                   <p className="text-xs" style={{ color: '#a0866a' }}>
-                    JPG, PNG veya WebP formatında, max 5MB. Görsel eklenmezse ISBN'den otomatik kapak gösterilir.
+                    JPG, PNG veya WebP formatında, max 5MB. Sürükle-bırak yapabilir veya resmi kopyalayıp sayfadayken direkt (CTRL+V) ile yapıştırabilirsiniz.
                   </p>
                 )}
               </div>
