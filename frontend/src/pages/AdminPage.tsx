@@ -391,19 +391,28 @@ export default function AdminPage() {
                         o.orderItems?.some(item => Number(item.bookId) === Number(book.id))
                       );
 
-                      // Grafik veri noktaları (Zaman bazlı)
-                      const orderDataPoints = bookOrders
-                        .map((o) => {
-                          const item = o.orderItems?.find(i => Number(i.bookId) === Number(book.id));
-                          const rev = item ? Number(item.quantity) * Number(item.price || book.price) : 0;
-                          const dateObj = new Date(o.orderDate || Date.now());
-                          return { dateObj, value: rev };
-                        })
-                        .sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime())
-                        .map((item) => ({
-                          label: item.dateObj.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' }),
-                          value: item.value,
-                        }));
+                      // Grafik veri noktaları (Aylık Ciro Bazlı)
+                      const monthNames = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+                      const now = new Date();
+                      const last5Months: string[] = [];
+
+                      for (let j = 4; j >= 0; j--) {
+                        const d = new Date(now.getFullYear(), now.getMonth() - j, 1);
+                        last5Months.push(monthNames[d.getMonth()]);
+                      }
+
+                      const orderDataPoints = last5Months.map((mLabel) => {
+                        let revenue = 0;
+                        bookOrders.forEach((o) => {
+                          const oDate = new Date(o.orderDate || Date.now());
+                          const oMonthName = monthNames[oDate.getMonth()];
+                          if (oMonthName === mLabel) {
+                            const item = o.orderItems?.find(i => Number(i.bookId) === Number(book.id));
+                            revenue += item ? Number(item.quantity) * Number(item.price || book.price) : 0;
+                          }
+                        });
+                        return { label: mLabel, value: revenue };
+                      });
 
                       const maxBookEarnings = Math.max(...orderDataPoints.map(p => p.value), 1);
 
@@ -469,9 +478,9 @@ export default function AdminPage() {
                                       <line x1={mPadLeft} y1={mSvgHeight - mPadBottom} x2={mSvgWidth - mPadRight} y2={mSvgHeight - mPadBottom} stroke="#a0522d" strokeWidth="1" />
 
                                       {/* Bars */}
-                                      {orderDataPoints.slice(0, 15).map((item, index) => {
-                                        const bWidth = 18;
-                                        const cWidth = mChartWidth / Math.min(orderDataPoints.length, 15);
+                                      {orderDataPoints.map((item, index) => {
+                                        const bWidth = 26;
+                                        const cWidth = mChartWidth / orderDataPoints.length;
                                         const xPos = mPadLeft + (index * cWidth) + (cWidth - bWidth) / 2;
                                         const bHeight = (item.value / maxBookEarnings) * mChartHeight;
                                         const yPos = mSvgHeight - mPadBottom - bHeight;

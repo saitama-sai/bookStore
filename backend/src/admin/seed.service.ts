@@ -175,6 +175,8 @@ export class SeedService {
     for (const book of books) {
       const customer = customers[Math.floor(Math.random() * customers.length)];
       const qty = Math.floor(Math.random() * 5) + 3; // 3 - 7 units
+      const randomDaysAgo = Math.floor(Math.random() * 120);
+      const pastDate = new Date(Date.now() - randomDaysAgo * 24 * 60 * 60 * 1000);
       
       const order = await this.orderRepo.save(
         this.orderRepo.create({
@@ -182,6 +184,7 @@ export class SeedService {
           totalPrice: Number(book.price) * qty,
           status: OrderStatus.DELIVERED,
           shippingAddress: addresses[Math.floor(Math.random() * addresses.length)],
+          orderDate: pastDate,
         }),
       );
 
@@ -200,6 +203,8 @@ export class SeedService {
       const customer = customers[i % customers.length];
       const bookCount = Math.floor(Math.random() * 3) + 1;
       const selectedBooks = [...books].sort(() => 0.5 - Math.random()).slice(0, bookCount);
+      const randomDaysAgo = Math.floor(Math.random() * 120);
+      const pastDate = new Date(Date.now() - randomDaysAgo * 24 * 60 * 60 * 1000);
 
       let total = 0;
       const order = await this.orderRepo.save(
@@ -208,6 +213,7 @@ export class SeedService {
           totalPrice: 0,
           status: statuses[i % statuses.length],
           shippingAddress: addresses[i % addresses.length],
+          orderDate: pastDate,
         }),
       );
 
