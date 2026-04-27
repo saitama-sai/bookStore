@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
@@ -10,7 +10,7 @@ import { Order, OrderStatus } from '../order/order.entity';
 import { OrderItem } from '../order/order-item.entity';
 
 @Injectable()
-export class SeedService {
+export class SeedService implements OnApplicationBootstrap {
   constructor(
     @InjectRepository(User)
     private userRepo: Repository<User>,
@@ -26,6 +26,19 @@ export class SeedService {
     private orderItemRepo: Repository<OrderItem>,
     private dataSource: DataSource,
   ) {}
+
+  async onApplicationBootstrap() {
+    try {
+      const bookCount = await this.bookRepo.count();
+      if (bookCount < 20) {
+        console.log('--- Otomatik Demo Verisi Yükleniyor... ---');
+        await this.seedDemoData();
+        console.log('--- Otomatik Demo Verisi Başarıyla Yüklendi. ---');
+      }
+    } catch (error) {
+      console.error('Otomatik demo yükleme hatası:', error);
+    }
+  }
 
   private async clearAllTables() {
     // Use raw SQL to avoid TypeORM's empty criteria restriction
