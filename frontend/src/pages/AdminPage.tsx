@@ -391,12 +391,19 @@ export default function AdminPage() {
                         o.orderItems?.some(item => Number(item.bookId) === Number(book.id))
                       );
 
-                      // Grafik veri noktaları (Sipariş bazlı)
-                      const orderDataPoints = bookOrders.map((o, idx) => {
-                        const item = o.orderItems?.find(i => Number(i.bookId) === Number(book.id));
-                        const rev = item ? Number(item.quantity) * Number(item.price || book.price) : 0;
-                        return { label: `Sipariş #${idx + 1}`, value: rev };
-                      });
+                      // Grafik veri noktaları (Zaman bazlı)
+                      const orderDataPoints = bookOrders
+                        .map((o) => {
+                          const item = o.orderItems?.find(i => Number(i.bookId) === Number(book.id));
+                          const rev = item ? Number(item.quantity) * Number(item.price || book.price) : 0;
+                          const dateObj = new Date(o.orderDate || Date.now());
+                          return { dateObj, value: rev };
+                        })
+                        .sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime())
+                        .map((item) => ({
+                          label: item.dateObj.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' }),
+                          value: item.value,
+                        }));
 
                       const maxBookEarnings = Math.max(...orderDataPoints.map(p => p.value), 1);
 
@@ -496,7 +503,7 @@ export default function AdminPage() {
                                               className="text-[7px] font-bold" 
                                               style={{ fill: '#5d4037' }}
                                             >
-                                              S{index + 1}
+                                              {item.label}
                                             </text>
                                           </g>
                                         );
