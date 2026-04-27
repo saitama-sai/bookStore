@@ -259,8 +259,6 @@ export default function AdminPage() {
               return { book, unitsSold, earnings };
             }).sort((a, b) => b.earnings - a.earnings);
 
-            const maxEarnings = Math.max(...analyticsData.map(d => d.earnings), 1);
-            const maxUnits = Math.max(...analyticsData.map(d => d.unitsSold), 1);
             const totalEarnings = analyticsData.reduce((acc, curr) => acc + curr.earnings, 0);
             const totalUnits = analyticsData.reduce((acc, curr) => acc + curr.unitsSold, 0);
 
