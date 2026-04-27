@@ -188,7 +188,7 @@ export default function AdminResetPage() {
           <div className="rounded-2xl p-5" style={{ backgroundColor: '#e8f5e9', border: '1px solid #c8e6c9' }}>
             <h3 className="font-bold mb-1" style={{ color: '#2e7d32' }}>✨ Demo Verisi Ekle</h3>
             <p className="text-xs mb-3" style={{ color: '#1b5e20' }}>
-              30 kitap, 5 kategori, 10 yazar, 5 müşteri, 15 sipariş ekler.
+              30 kitap, 5 kategori, 10 yazar, 5 müşteri, 55 sipariş ekler.
             </p>
             <button
               onClick={() => setDialog({ action: 'seed' })}
