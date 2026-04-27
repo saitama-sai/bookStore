@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like, FindManyOptions } from 'typeorm';
+import { Repository, Like, FindManyOptions, In } from 'typeorm';
 import { Book } from './book.entity';
 import { Author } from '../author/author.entity';
 import { CreateBookDto } from './dto/create-book.dto';
@@ -69,8 +69,11 @@ export class BookService {
     const { authorIds, ...bookData } = dto;
     const book = this.bookRepository.create(bookData);
 
-    if (authorIds && authorIds.length > 0) {
-      const authors = await this.authorRepository.findByIds(authorIds);
+    const ids = Array.isArray(authorIds) ? authorIds : (authorIds ? [authorIds] : []);
+    if (ids.length > 0) {
+      const authors = await this.authorRepository.findBy({
+        id: In(ids.map(Number)),
+      });
       book.authors = authors;
     }
 
@@ -84,7 +87,10 @@ export class BookService {
     Object.assign(book, bookData);
 
     if (authorIds !== undefined) {
-      const authors = await this.authorRepository.findByIds(authorIds);
+      const ids = Array.isArray(authorIds) ? authorIds : (authorIds ? [authorIds] : []);
+      const authors = await this.authorRepository.findBy({
+        id: In(ids.map(Number)),
+      });
       book.authors = authors;
     }
 
