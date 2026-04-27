@@ -2,6 +2,9 @@
 
 Bu proje, modern bir web tabanlı kitap satış platformu simülasyonudur. Öğretici ve operasyonel amaçlar doğrultusunda hazırlanmıştır.
 
+### 🌐 Canlı Önizleme (Live Demo)
+Projeyi internet üzerinden anında denemek için: **[https://bookstore-dpsa.onrender.com/](https://bookstore-dpsa.onrender.com/)**
+
 ## 🛠️ Teknolojik Altyapı
 - **Backend:** NestJS, TypeORM, SQLite (Veritabanı)
 - **Frontend:** React, Vite, Tailwind CSS, TypeScript
