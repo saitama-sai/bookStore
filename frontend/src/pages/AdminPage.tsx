@@ -25,6 +25,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [newCategory, setNewCategory] = useState({ name: '', slug: '', description: '' });
   const [newAuthor, setNewAuthor] = useState({ name: '', country: '', biography: '' });
+  const [selectedBookChartId, setSelectedBookChartId] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user || !isAdmin()) { navigate('/giris'); return; }
@@ -381,18 +382,134 @@ export default function AdminPage() {
                 <div className="rounded-2xl p-6 shadow-sm mt-6" style={{ backgroundColor: '#fff8dc', border: '1px solid #f5e6d3' }}>
                   <h3 className="text-xl font-bold mb-4" style={{ color: '#3e2723', fontFamily: 'Georgia, serif' }}>Detaylı Satış Listesi</h3>
                   <div className="space-y-4">
-                    {analyticsData.map(({ book, unitsSold, earnings }) => (
-                      <div key={book.id} className="flex justify-between items-center p-3 rounded-lg bg-orange-50/50 hover:bg-orange-50 transition-colors">
-                        <div className="flex items-center gap-2">
-                          <span>📖</span>
-                          <span className="font-medium text-sm text-amber-900">{book.title}</span>
+                    {analyticsData.map(({ book, unitsSold, earnings }) => {
+                      const isExpanded = selectedBookChartId === book.id;
+                      
+                      // Filtrelenmiş siparişler
+                      const bookOrders = (orders || []).filter(o => 
+                        o.status !== 'cancelled' && 
+                        o.orderItems?.some(item => Number(item.bookId) === Number(book.id))
+                      );
+
+                      // Grafik veri noktaları (Sipariş bazlı)
+                      const orderDataPoints = bookOrders.map((o, idx) => {
+                        const item = o.orderItems?.find(i => Number(i.bookId) === Number(book.id));
+                        const rev = item ? Number(item.quantity) * Number(item.price || book.price) : 0;
+                        return { label: `Sipariş #${idx + 1}`, value: rev };
+                      });
+
+                      const maxBookEarnings = Math.max(...orderDataPoints.map(p => p.value), 1);
+
+                      return (
+                        <div key={book.id} className="p-3 rounded-lg bg-orange-50/50 border border-orange-100 hover:bg-orange-50 transition-colors">
+                          <div 
+                            className="flex justify-between items-center cursor-pointer select-none"
+                            onClick={() => setSelectedBookChartId(isExpanded ? null : book.id)}
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span>📖</span>
+                              <span className="font-bold text-sm text-amber-900 truncate">{book.title}</span>
+                              <span className="text-[10px] text-amber-600 font-medium">({isExpanded ? '▲ Kapat' : '▼ Grafiği Gör'})</span>
+                            </div>
+                            <div className="flex gap-4 text-xs font-bold flex-shrink-0">
+                              <span style={{ color: '#1565c0' }}>{unitsSold} Adet</span>
+                              <span style={{ color: '#2e7d32' }}>₺{earnings.toFixed(2)}</span>
+                            </div>
+                          </div>
+
+                          {/* Individual Micro Chart */}
+                          {isExpanded && (
+                            <div className="mt-4 pt-4 border-t border-orange-100/50">
+                              {orderDataPoints.length === 0 ? (
+                                <p className="text-center text-xs py-2 text-amber-800">Bu kitap için henüz grafik verisi yok.</p>
+                              ) : (() => {
+                                const mSvgWidth = 500;
+                                const mSvgHeight = 160;
+                                const mPadLeft = 50;
+                                const mPadBottom = 30;
+                                const mPadTop = 20;
+                                const mPadRight = 20;
+                                
+                                const mChartWidth = mSvgWidth - mPadLeft - mPadRight;
+                                const mChartHeight = mSvgHeight - mPadTop - mPadBottom;
+
+                                return (
+                                  <div className="overflow-x-auto py-2 flex justify-center">
+                                    <svg width={mSvgWidth} height={mSvgHeight}>
+                                      <defs>
+                                        <linearGradient id="bookBarGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                          <stop offset="0%" stopColor="#1e88e5" />
+                                          <stop offset="100%" stopColor="#90caf9" />
+                                        </linearGradient>
+                                      </defs>
+
+                                      {/* Y Axis Grid Lines */}
+                                      {[0, 0.5, 1].map((pct, idx) => {
+                                        const val = maxBookEarnings * pct;
+                                        const yPos = mSvgHeight - mPadBottom - (mChartHeight * pct);
+                                        return (
+                                          <g key={idx}>
+                                            <line x1={mPadLeft} y1={yPos} x2={mSvgWidth - mPadRight} y2={yPos} stroke="#f0dfc8" strokeDasharray="3 3" />
+                                            <text x={mPadLeft - 8} y={yPos + 4} textAnchor="end" className="text-[9px] font-bold" style={{ fill: '#795548' }}>
+                                              ₺{val.toFixed(0)}
+                                            </text>
+                                          </g>
+                                        );
+                                      })}
+
+                                      {/* Axes */}
+                                      <line x1={mPadLeft} y1={mPadTop} x2={mPadLeft} y2={mSvgHeight - mPadBottom} stroke="#a0522d" strokeWidth="1" />
+                                      <line x1={mPadLeft} y1={mSvgHeight - mPadBottom} x2={mSvgWidth - mPadRight} y2={mSvgHeight - mPadBottom} stroke="#a0522d" strokeWidth="1" />
+
+                                      {/* Bars */}
+                                      {orderDataPoints.slice(0, 15).map((item, index) => {
+                                        const bWidth = 18;
+                                        const cWidth = mChartWidth / Math.min(orderDataPoints.length, 15);
+                                        const xPos = mPadLeft + (index * cWidth) + (cWidth - bWidth) / 2;
+                                        const bHeight = (item.value / maxBookEarnings) * mChartHeight;
+                                        const yPos = mSvgHeight - mPadBottom - bHeight;
+
+                                        return (
+                                          <g key={index}>
+                                            <rect 
+                                              x={xPos} 
+                                              y={yPos} 
+                                              width={bWidth} 
+                                              height={bHeight} 
+                                              fill="url(#bookBarGrad)" 
+                                              rx="3"
+                                              className="hover:opacity-80 transition-all cursor-pointer"
+                                            />
+                                            <text 
+                                              x={xPos + bWidth / 2} 
+                                              y={yPos - 4} 
+                                              textAnchor="middle" 
+                                              className="text-[8px] font-bold" 
+                                              style={{ fill: '#1565c0' }}
+                                            >
+                                              ₺{item.value.toFixed(0)}
+                                            </text>
+                                            <text 
+                                              x={xPos + bWidth / 2} 
+                                              y={mSvgHeight - mPadBottom + 12} 
+                                              textAnchor="middle" 
+                                              className="text-[7px] font-bold" 
+                                              style={{ fill: '#5d4037' }}
+                                            >
+                                              S{index + 1}
+                                            </text>
+                                          </g>
+                                        );
+                                      })}
+                                    </svg>
+                                  </div>
+                                );
+                              })()}
+                            </div>
+                          )}
                         </div>
-                        <div className="flex gap-4 text-xs font-bold">
-                          <span style={{ color: '#1565c0' }}>{unitsSold} Adet</span>
-                          <span style={{ color: '#2e7d32' }}>₺{earnings.toFixed(2)}</span>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>
