@@ -126,7 +126,6 @@ export class SeedService implements OnApplicationBootstrap {
       { title: 'Kar', isbn: '9789750802690', price: 45.90, stock: 25, publishYear: 2002, pageCount: 480, coverImage: '/kar.png', category: getCat('Roman'), authors: [authors[0]] },
       { title: 'Benim Adım Kırmızı', isbn: '9789750802683', price: 52.50, stock: 18, publishYear: 1998, pageCount: 592, coverImage: 'https://covers.openlibrary.org/b/isbn/9789750802683-M.jpg', category: getCat('Roman'), authors: [authors[0]] },
       { title: 'Huzur', isbn: '9789753630108', price: 38.90, stock: 30, publishYear: 1949, pageCount: 344, coverImage: '/huzur.png', category: getCat('Roman'), authors: [authors[1]] },
-      { title: 'İnce Memed', isbn: '9789750718533', price: 42.00, stock: 22, publishYear: 1955, pageCount: 448, coverImage: '/incememed.png', category: getCat('Roman'), authors: [authors[2]] },
       { title: 'Kürk Mantolu Madonna', isbn: '9789750736186', price: 35.00, stock: 40, publishYear: 1943, pageCount: 168, coverImage: '/kurkmantolumadonna.png', category: getCat('Roman'), authors: [authors[3]] },
       { title: 'Çalıkuşu', isbn: '9789754580662', price: 40.00, stock: 35, publishYear: 1922, pageCount: 480, coverImage: '/calikusu.png', category: getCat('Roman'), authors: [authors[4]] },
       { title: '1984', isbn: '9780451524935', price: 48.90, stock: 50, publishYear: 1949, pageCount: 352, coverImage: 'https://covers.openlibrary.org/b/isbn/9780451524935-M.jpg', category: getCat('Bilim Kurgu'), authors: [authors[5]] },
@@ -233,7 +232,7 @@ export class SeedService implements OnApplicationBootstrap {
     const stats = { stocklessBooks: 0, orphanOrders: 0, orphanItems: 0, emptyCategories: 0, manualBooksDeleted: 0 };
 
     const officialIsbns = [
-      '9789750802690', '9789750802683', '9789753630108', '9789750718533', 
+      '9789750802690', '9789750802683', '9789753630108', 
       '9789750736186', '9789754580662', '9780451524935', '9780451526342', 
       '9780486290300', '9780805209990', '9780679720201', '9780679720218', 
       '9780486415871', '9780374528379', '9780199232765', '9780143035008', 
