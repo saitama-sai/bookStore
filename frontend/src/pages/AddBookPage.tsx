@@ -31,7 +31,7 @@ export default function AddBookPage() {
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { register, handleSubmit, formState: { errors } } = useForm<FormFields>({
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormFields>({
     defaultValues: { language: 'Türkçe', stock: 0 }
   });
 
@@ -134,13 +134,108 @@ export default function AddBookPage() {
       setLoading(false);
     }
   };
+  const generateAutoBook = () => {
+    const prefixes = ['Gizemli', 'Kayıp', 'Son', 'Kadim', 'Rüzgarlı', 'Gümüş', 'Gece', 'Gölge', 'Saklı', 'Sihirli'];
+    const nouns = ['Ada', 'Şehir', 'Gece', 'Yolculuk', 'Anahtar', 'Tapınak', 'Diyar', 'Orman', 'Kule', 'Sır'];
+    const title = `${prefixes[Math.floor(Math.random() * prefixes.length)]} ${nouns[Math.floor(Math.random() * nouns.length)]}`;
+    
+    let isbn = '978';
+    for (let i = 0; i < 10; i++) isbn += Math.floor(Math.random() * 10);
+
+    setValue('title', title);
+    setValue('isbn', isbn);
+    setValue('price', Number((Math.random() * 120 + 35).toFixed(2)));
+    setValue('stock', Math.floor(Math.random() * 45) + 5);
+    setValue('publishYear', Math.floor(Math.random() * 45) + 1980);
+    setValue('pageCount', Math.floor(Math.random() * 450) + 150);
+    setValue('language', Math.random() > 0.8 ? 'İngilizce' : 'Türkçe');
+    setValue('description', `${title}, heyecan dolu kurgusuyla okuyucuları büyüleyen sürükleyici bir romandır.`);
+
+    if (categories.length > 0) {
+      const randomCat = categories[Math.floor(Math.random() * categories.length)];
+      setValue('categoryId', randomCat.id);
+    }
+
+    if (authors.length > 0) {
+      const randomAuth = authors[Math.floor(Math.random() * authors.length)];
+      setValue('authorIds', String(randomAuth.id));
+    }
+
+    // Canvas cover creation
+    const canvas = document.createElement('canvas');
+    canvas.width = 300;
+    canvas.height = 450;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      const grad = ctx.createLinearGradient(0, 0, 300, 450);
+      const colors = ['#2b1055', '#7597de', '#4b134f', '#c94b4b', '#134e5e', '#71b280'];
+      grad.addColorStop(0, colors[Math.floor(Math.random() * colors.length)]);
+      grad.addColorStop(1, colors[Math.floor(Math.random() * colors.length)]);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 300, 450);
+
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.lineWidth = 15;
+      for(let i=0; i<12; i++){
+        ctx.beginPath();
+        ctx.arc(Math.random()*300, Math.random()*450, Math.random()*120, 0, Math.PI*2);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = 'rgba(0,0,0,0.6)';
+      ctx.shadowBlur = 6;
+      ctx.textAlign = 'center';
+      
+      // Text Wrapping
+      ctx.font = 'bold 24px Georgia';
+      const words = title.split(' ');
+      let line = '';
+      let y = 180;
+      for(let n = 0; n < words.length; n++) {
+        let testLine = line + words[n] + ' ';
+        let metrics = ctx.measureText(testLine);
+        if (metrics.width > 260 && n > 0) {
+          ctx.fillText(line, 150, y);
+          line = words[n] + ' ';
+          y += 30;
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line, 150, y);
+
+      ctx.shadowBlur = 0;
+      ctx.font = 'italic 14px sans-serif';
+      ctx.fillStyle = '#f5e6d3';
+      ctx.fillText('Otomatik Üretilen Eser', 150, 400);
+
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const file = new File([blob], `auto_cover_${Date.now()}.png`, { type: 'image/png' });
+          setCoverFile(file);
+          setCoverPreview(URL.createObjectURL(file));
+        }
+      }, 'image/png');
+    }
+  };
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <button onClick={() => navigate('/admin')} className="mb-6 text-sm hover:underline" style={{ color: '#8b4513' }}>
         ← Admin Paneline Dön
       </button>
-      <h1 className="text-3xl font-bold mb-8" style={{ color: '#3e2723', fontFamily: 'Georgia, serif' }}>Yeni Kitap Ekle</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold" style={{ color: '#3e2723', fontFamily: 'Georgia, serif' }}>Yeni Kitap Ekle</h1>
+        <button
+          type="button"
+          onClick={generateAutoBook}
+          className="px-4 py-2.5 rounded-xl font-bold text-sm text-white shadow-md transition-all hover:scale-105 active:scale-95"
+          style={{ backgroundColor: '#ea580c' }}
+        >
+          ✨ Rastgele Kitap Üret
+        </button>
+      </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="rounded-xl p-6 space-y-4" style={{ backgroundColor: '#fff8dc', border: '1px solid #f5e6d3' }}>
