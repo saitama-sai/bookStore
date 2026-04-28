@@ -123,12 +123,12 @@ export class SeedService implements OnApplicationBootstrap {
     const getCat = (name: string) => categories.find((c) => c.name === name) || categories[0];
 
     const booksData = [
-      { title: 'Kar', isbn: '9789750802690', price: 45.90, stock: 25, publishYear: 2002, pageCount: 480, coverImage: 'https://covers.openlibrary.org/b/isbn/9789750802690-M.jpg', category: getCat('Roman'), authors: [authors[0]] },
+      { title: 'Kar', isbn: '9789750802690', price: 45.90, stock: 25, publishYear: 2002, pageCount: 480, coverImage: '/kar.png', category: getCat('Roman'), authors: [authors[0]] },
       { title: 'Benim Adım Kırmızı', isbn: '9789750802683', price: 52.50, stock: 18, publishYear: 1998, pageCount: 592, coverImage: 'https://covers.openlibrary.org/b/isbn/9789750802683-M.jpg', category: getCat('Roman'), authors: [authors[0]] },
-      { title: 'Huzur', isbn: '9789753630108', price: 38.90, stock: 30, publishYear: 1949, pageCount: 344, coverImage: 'https://covers.openlibrary.org/b/isbn/9789753630108-M.jpg', category: getCat('Roman'), authors: [authors[1]] },
-      { title: 'İnce Memed', isbn: '9789750718533', price: 42.00, stock: 22, publishYear: 1955, pageCount: 448, coverImage: 'https://covers.openlibrary.org/b/isbn/9789750718533-M.jpg', category: getCat('Roman'), authors: [authors[2]] },
-      { title: 'Kürk Mantolu Madonna', isbn: '9789750736186', price: 35.00, stock: 40, publishYear: 1943, pageCount: 168, coverImage: 'https://covers.openlibrary.org/b/isbn/9789750736186-M.jpg', category: getCat('Roman'), authors: [authors[3]] },
-      { title: 'Çalıkuşu', isbn: '9789754580662', price: 40.00, stock: 35, publishYear: 1922, pageCount: 480, coverImage: 'https://covers.openlibrary.org/b/isbn/9789754580662-M.jpg', category: getCat('Roman'), authors: [authors[4]] },
+      { title: 'Huzur', isbn: '9789753630108', price: 38.90, stock: 30, publishYear: 1949, pageCount: 344, coverImage: '/huzur.png', category: getCat('Roman'), authors: [authors[1]] },
+      { title: 'İnce Memed', isbn: '9789750718533', price: 42.00, stock: 22, publishYear: 1955, pageCount: 448, coverImage: '/incememed.png', category: getCat('Roman'), authors: [authors[2]] },
+      { title: 'Kürk Mantolu Madonna', isbn: '9789750736186', price: 35.00, stock: 40, publishYear: 1943, pageCount: 168, coverImage: '/kurkmantolumadonna.png', category: getCat('Roman'), authors: [authors[3]] },
+      { title: 'Çalıkuşu', isbn: '9789754580662', price: 40.00, stock: 35, publishYear: 1922, pageCount: 480, coverImage: '/calikusu.png', category: getCat('Roman'), authors: [authors[4]] },
       { title: '1984', isbn: '9780451524935', price: 48.90, stock: 50, publishYear: 1949, pageCount: 352, coverImage: 'https://covers.openlibrary.org/b/isbn/9780451524935-M.jpg', category: getCat('Bilim Kurgu'), authors: [authors[5]] },
       { title: 'Hayvan Çiftliği', isbn: '9780451526342', price: 30.00, stock: 45, publishYear: 1945, pageCount: 144, coverImage: 'https://covers.openlibrary.org/b/isbn/9780451526342-M.jpg', category: getCat('Bilim Kurgu'), authors: [authors[5]] },
       { title: 'Dönüşüm', isbn: '9780486290300', price: 28.50, stock: 38, publishYear: 1915, pageCount: 128, coverImage: 'https://covers.openlibrary.org/b/isbn/9780486290300-M.jpg', category: getCat('Felsefe'), authors: [authors[6]] },
