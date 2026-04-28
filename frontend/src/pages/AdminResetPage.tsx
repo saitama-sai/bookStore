@@ -204,7 +204,7 @@ export default function AdminResetPage() {
           <div className="rounded-2xl p-5" style={{ backgroundColor: '#fff8e1', border: '1px solid #ffecb3' }}>
             <h3 className="font-bold mb-1" style={{ color: '#e65100' }}>🧹 Bozuk Verileri Temizle</h3>
             <p className="text-xs mb-3" style={{ color: '#bf360c' }}>
-              Stoksuz kitaplar, sahipsiz siparişler ve boş kategorileri temizler.
+              Stoksuz kitaplar, sahipsiz siparişler, boş kategoriler ve sonradan elle eklenen kitapları temizler.
             </p>
             <button
               onClick={() => setDialog({ action: 'clear' })}
@@ -247,7 +247,7 @@ export default function AdminResetPage() {
           message={
             dialog.action === 'reset' ? 'Bu işlem geri alınamaz! Tüm kitaplar, siparişler ve kullanıcılar silinecek. Emin misiniz?' :
             dialog.action === 'seed' ? '30 kitap, 10 yazar, 5 kategori ve 15 sipariş eklenecek. Devam etmek istiyor musunuz?' :
-            'Stoksuz kitaplar, sahipsiz siparişler ve boş kategoriler silinecek. Devam etmek istiyor musunuz?'
+            'Stoksuz kitaplar, sahipsiz siparişler, boş kategoriler ve sonradan elle eklenen kitaplar silinecek. Devam etmek istiyor musunuz?'
           }
           onConfirm={dialog.action === 'reset' ? handleReset : dialog.action === 'seed' ? handleSeed : handleClear}
           onCancel={() => setDialog(null)}

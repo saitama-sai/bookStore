@@ -230,7 +230,27 @@ export class SeedService implements OnApplicationBootstrap {
   }
 
   async clearCorruptedData() {
-    const stats = { stocklessBooks: 0, orphanOrders: 0, orphanItems: 0, emptyCategories: 0 };
+    const stats = { stocklessBooks: 0, orphanOrders: 0, orphanItems: 0, emptyCategories: 0, manualBooksDeleted: 0 };
+
+    const officialIsbns = [
+      '9789750802690', '9789750802683', '9789753630108', '9789750718533', 
+      '9789750736186', '9789754580662', '9780451524935', '9780451526342', 
+      '9780486290300', '9780805209990', '9780679720201', '9780679720218', 
+      '9780486415871', '9780374528379', '9780199232765', '9780143035008', 
+      '9780156012195', '9780141439761', '9780441172719', '9780060850524', 
+      '9780393312836', '9781451673319', '9780679734529', '9780060934347', 
+      '9780451419439', '9780547928227', '9781594631931', '9780062315007', 
+      '9780618640157', '9780553212419'
+    ];
+
+    // Manuel eklenen kitapları temizle (ISBN listesinde yoksa)
+    const allBooks = await this.bookRepo.find();
+    for (const book of allBooks) {
+      if (!officialIsbns.includes(book.isbn)) {
+        await this.bookRepo.softDelete(book.id);
+        stats.manualBooksDeleted++;
+      }
+    }
 
     // Soft-delete books with zero stock
     const stocklessBooks = await this.bookRepo.find({ where: { stock: 0 } });
