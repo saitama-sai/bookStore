@@ -229,65 +229,18 @@ export class SeedService implements OnApplicationBootstrap {
   }
 
   async clearCorruptedData() {
-    const stats = { stocklessBooks: 0, orphanOrders: 0, orphanItems: 0, emptyCategories: 0, manualBooksDeleted: 0 };
+    // Tüm eklemeleri silip sistemi tam anlamıyla demo durumuna geri döndürmek için demo tohumlamasını baştan çalıştırıyoruz.
+    await this.seedDemoData();
 
-    const officialIsbns = [
-      '9789750802690', '9789750802683', '9789753630108', 
-      '9789750736186', '9789754580662', '9780451524935', '9780451526342', 
-      '9780486290300', '9780805209990', '9780679720201', '9780679720218', 
-      '9780486415871', '9780374528379', '9780199232765', '9780143035008', 
-      '9780156012195', '9780141439761', '9780441172719', '9780060850524', 
-      '9780393312836', '9781451673319', '9780679734529', '9780060934347', 
-      '9780451419439', '9780547928227', '9781594631931', '9780062315007', 
-      '9780618640157', '9780553212419'
-    ];
-
-    // Manuel eklenen kitapları temizle (ISBN listesinde yoksa)
-    const allBooks = await this.bookRepo.find();
-    for (const book of allBooks) {
-      if (!officialIsbns.includes(book.isbn)) {
-        await this.bookRepo.softDelete(book.id);
-        stats.manualBooksDeleted++;
-      }
-    }
-
-    // Soft-delete books with zero stock
-    const stocklessBooks = await this.bookRepo.find({ where: { stock: 0 } });
-    for (const book of stocklessBooks) {
-      await this.bookRepo.softDelete(book.id);
-      stats.stocklessBooks++;
-    }
-
-    // Delete orphan order items (book deleted or doesn't exist)
-    const orphanItemRows: any[] = await this.dataSource.query(
-      `SELECT oi.id FROM order_items oi LEFT JOIN books b ON oi.bookId = b.id WHERE b.id IS NULL OR b.deletedAt IS NOT NULL`,
-    );
-    for (const row of orphanItemRows) {
-      await this.dataSource.query('DELETE FROM order_items WHERE id = ?', [row.id]);
-      stats.orphanItems++;
-    }
-
-    // Delete orphan orders (user doesn't exist)
-    const orphanOrderRows: any[] = await this.dataSource.query(
-      `SELECT o.id FROM orders o LEFT JOIN users u ON o.userId = u.id WHERE u.id IS NULL`,
-    );
-    for (const row of orphanOrderRows) {
-      await this.dataSource.query('DELETE FROM order_items WHERE orderId = ?', [row.id]);
-      await this.dataSource.query('DELETE FROM orders WHERE id = ?', [row.id]);
-      stats.orphanOrders++;
-    }
-
-    // Delete empty categories
-    const allCategories: any[] = await this.dataSource.query(
-      `SELECT c.id, COUNT(b.id) as bookCount FROM categories c LEFT JOIN books b ON b.categoryId = c.id AND b.deletedAt IS NULL GROUP BY c.id HAVING bookCount = 0`,
-    );
-    for (const cat of allCategories) {
-      await this.dataSource.query('DELETE FROM categories WHERE id = ?', [cat.id]);
-      stats.emptyCategories++;
-    }
-
-    return { message: 'Bozuk veriler temizlendi', ...stats };
+    return { 
+      message: 'Sistem başarıyla fabrika çıkışı demo ayarlarına döndürüldü.', 
+      stocklessBooks: 0, 
+      orphanOrders: 0, 
+      orphanItems: 0, 
+      emptyCategories: 0 
+    };
   }
+
 
   async getDatabaseStats() {
     const [users, categories, authors, books, orders, orderItems] = await Promise.all([
