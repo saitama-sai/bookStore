@@ -184,37 +184,10 @@ export class SeedService implements OnApplicationBootstrap {
     const statuses = [OrderStatus.PENDING, OrderStatus.PROCESSING, OrderStatus.SHIPPED, OrderStatus.DELIVERED, OrderStatus.CANCELLED];
     const addresses = ['İstanbul, Kadıköy', 'Ankara, Çankaya', 'İzmir, Konak', 'Bursa, Nilüfer', 'Antalya, Muratpaşa'];
 
-    // Ensure every single book gets at least some sales so charts are populated
-    for (const book of books) {
-      const customer = customers[Math.floor(Math.random() * customers.length)];
-      const qty = Math.floor(Math.random() * 5) + 3; // 3 - 7 units
-      const randomDaysAgo = Math.floor(Math.random() * 120);
-      const pastDate = new Date(Date.now() - randomDaysAgo * 24 * 60 * 60 * 1000);
-      
-      const order = await this.orderRepo.save(
-        this.orderRepo.create({
-          userId: customer.id,
-          totalPrice: Number(book.price) * qty,
-          status: OrderStatus.DELIVERED,
-          shippingAddress: addresses[Math.floor(Math.random() * addresses.length)],
-          orderDate: pastDate,
-        }),
-      );
-
-      await this.orderItemRepo.save(
-        this.orderItemRepo.create({
-          orderId: order.id,
-          bookId: book.id,
-          quantity: qty,
-          price: +book.price,
-        }),
-      );
-    }
-
-    // Additional randomized orders
-    for (let i = 0; i < 25; i++) {
+    // Create exactly 15 randomized demo orders
+    for (let i = 0; i < 15; i++) {
       const customer = customers[i % customers.length];
-      const bookCount = Math.floor(Math.random() * 3) + 1;
+      const bookCount = Math.floor(Math.random() * 4) + 1; // 1-4 books per order
       const selectedBooks = [...books].sort(() => 0.5 - Math.random()).slice(0, bookCount);
       const randomDaysAgo = Math.floor(Math.random() * 120);
       const pastDate = new Date(Date.now() - randomDaysAgo * 24 * 60 * 60 * 1000);
